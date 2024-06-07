@@ -37,6 +37,8 @@ class Validator
         Parser::setDelimiter($context);
 
         while (preg_match($context['tokens']['search'], $template, $matches)) {
+            $nextTemplate = "{$matches[Token::POS_RSPACE]}{$matches[Token::POS_ROTHER]}";
+
             // Skip a token when it is slash escaped
             if ($context['flags']['slash'] && ($matches[Token::POS_LSPACE] === '') && preg_match('/^(.*?)(\\\\+)$/s', $matches[Token::POS_LOTHER], $escmatch)) {
                 if (strlen($escmatch[2]) % 4) {
@@ -57,7 +59,7 @@ class Validator
                 }
                 static::pushToken($context, $V);
             }
-            $template = "{$matches[Token::POS_RSPACE]}{$matches[Token::POS_ROTHER]}";
+            $template = $nextTemplate;
         }
         static::pushToken($context, $template);
 
@@ -629,6 +631,10 @@ class Validator
 
         // Handle spacing (standalone tags, partial indent)
         static::spacing($token, $context, (($token[Token::POS_OP] === '') || ($token[Token::POS_OP] === '&')) && (!$context['flags']['else'] || !isset($vars[0][0]) || ($vars[0][0] !== 'else')) || ($context['flags']['nostd'] > 0));
+
+        // reduce token memory usage by resetting some keys
+        $token[0] = '';
+        $token[Token::POS_ROTHER] = '';
 
         $inlinepartial = static::inlinePartial($context, $vars);
         $partialblock = static::partialBlock($context, $vars);
