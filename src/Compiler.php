@@ -92,7 +92,7 @@ class Compiler extends Validator
         $flagKnownHlp = Expression::boolString($context['flags']['knohlp']);
 
         $constants = Exporter::constants($context);
-        $helpers = Exporter::helpers($context);
+        $helpers = '[]'; // Exporter::helpers($context);
         $partials = implode(",\n", $context['partialCode']);
         $debug = Runtime::DEBUG_ERROR_LOG;
         $use = $context['flags']['standalone'] ? Exporter::runtime($context) : "use {$context['runtime']} as {$context['runtimealias']};";
